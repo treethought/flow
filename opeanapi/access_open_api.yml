@@ -1,0 +1,46 @@
+swagger: "2.0"
+info:
+  description: ""
+  version: "1.0.0"
+  title: "Access API"
+host: "petstore.swagger.io"
+basePath: "/v2"
+schemes:
+  - "https"
+  - "http"
+paths:
+  /transaction:
+    get:
+      summary: "get transaction"
+      description: "Multiple status values can be provided with comma separated strings"
+      operationId: "findPetsByStatus"
+      produces:
+        - "application/xml"
+        - "application/json"
+      responses:
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Pet not found"
+        "405":
+          description: "Validation exception"
+definitions:
+  TransactionSignature:
+    type: "object"
+    required:
+      - "address"
+      - "key_id"
+      - "signature"
+    properties:
+      address:
+        type: "string"
+        format: "binary"
+      key_id:
+        type: "integer"
+      signature:
+        type: "string"
+        format: "binary"
+
+externalDocs:
+  description: "Find out more about Access API"
+  url: "https://docs.onflow.org/access-api/"
