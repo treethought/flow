@@ -27,7 +27,7 @@ paths:
             uniqueItems: true
           explode: false
           style: form
-          required: true
+          required: false
         - name: start_height
           in: query
           schema:

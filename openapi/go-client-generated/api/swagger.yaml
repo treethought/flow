@@ -22,7 +22,7 @@ paths:
       - name: height
         in: query
         description: A comma-separated list of block heights to get.
-        required: true
+        required: false
         style: form
         explode: false
         schema:
