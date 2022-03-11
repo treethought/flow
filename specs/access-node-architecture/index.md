@@ -57,7 +57,7 @@ The new `Access Node` builds on the original node capabilities above:
 ### Access Node
 
 - Participates as a *staked* node within the Flow network
-- Maintains sync using `Blockchain Data Service`
+- Stays up to date with protocol state and execution data
 - Accepts new transactions, validates them, and forwards them to collection nodes.
 - Bridges the staked and public libp2p networks
     - Provides access to the Flow blockchain’s protocol and execution state via a public libp2p network that exposes the state sync and execution data sync protocols.
@@ -67,7 +67,7 @@ The new `Access Node` builds on the original node capabilities above:
 ### Observer Service
 
 - Participates in the Flow network as a consumer of public data without being staked or permissioned
-- Maintains sync using `Blockchain Data Service`
+- Stays up to date with protocol state and execution data
 - Accepts new transactions, validates them, and forwards them to `Access Nodes`
 - Is deployed as a stand-alone application, and does not strictly require `DPS` or the `Flow API Service` (though it would have limited utility without them)
 
@@ -95,7 +95,7 @@ The new `Access Node` builds on the original node capabilities above:
 - Served using 1:1 communication (likely gRPC over web sockets)
 - Permissioned (not intended to be exposed to the public)
 - Provides an abstraction layer so clients don’t need to interact with the Flow network directly
-- The API accesses data from the `Execution Data Service` and `Protocol State Service`
+- The API accesses data from the `Execution Data Module` and `Protocol State Module`
 
 # Refactoring detailed diagrams
 ### Starting Point
