@@ -2,17 +2,55 @@ syntax = "proto3";
 
 package flow.access;
 
-option go_package = "github.com/onflow/flow/protobuf/go/flow/access";
-option java_package = "org.onflow.protobuf.access";
-
 import "flow/entities/account.proto";
-import "flow/entities/block_header.proto";
 import "flow/entities/block.proto";
+import "flow/entities/block_header.proto";
 import "flow/entities/collection.proto";
 import "flow/entities/event.proto";
 import "flow/entities/execution_result.proto";
 import "flow/entities/transaction.proto";
+import "google/api/annotations.proto";
+import "google/api/client.proto";
+import "google/api/field_behavior.proto";
+import "google/api/resource.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/rpc/status.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/onflow/flow/protobuf/go/flow/access";
+option java_package = "org.onflow.protobuf.access";
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  host: "rest-mainnet.onflow.org";
+  base_path: "/v1";
+  schemes: [HTTPS];
+  consumes: "application/json";
+  produces: "application/json";
+
+  info: {
+    title: "Access API";
+    version: "1.0.0";
+    license: {
+      name: "GNU Affero General Public License v3.0";
+      url: "https://github.com/onflow/flow-go/blob/master/LICENSE.txt";
+    };
+  };
+
+  responses: {
+    key: "default";
+    value: {
+      description: "An unexpected error response.";
+      schema: {
+        json_schema: {ref: ".google.rpc.Status"}
+      }
+    };
+  }
+
+  external_docs: {
+    url: "https://developers.flow.com/http-api";
+    description: "Find out more about the Access API";
+  }
+};
 
 // AccessAPI is the public-facing API provided by access nodes.
 service AccessAPI {
@@ -22,14 +60,11 @@ service AccessAPI {
   // Block Headers
 
   // GetLatestBlockHeader gets the latest sealed or unsealed block header.
-  rpc GetLatestBlockHeader(GetLatestBlockHeaderRequest)
-      returns (BlockHeaderResponse);
+  rpc GetLatestBlockHeader(GetLatestBlockHeaderRequest) returns (BlockHeaderResponse);
   // GetBlockHeaderByID gets a block header by ID.
-  rpc GetBlockHeaderByID(GetBlockHeaderByIDRequest)
-      returns (BlockHeaderResponse);
+  rpc GetBlockHeaderByID(GetBlockHeaderByIDRequest) returns (BlockHeaderResponse);
   // GetBlockHeaderByHeight gets a block header by height.
-  rpc GetBlockHeaderByHeight(GetBlockHeaderByHeightRequest)
-      returns (BlockHeaderResponse);
+  rpc GetBlockHeaderByHeight(GetBlockHeaderByHeightRequest) returns (BlockHeaderResponse);
 
   // Blocks
 
@@ -37,7 +72,9 @@ service AccessAPI {
   // block.
   rpc GetLatestBlock(GetLatestBlockRequest) returns (BlockResponse);
   // GetBlockByID gets a full block by ID.
-  rpc GetBlockByID(GetBlockByIDRequest) returns (BlockResponse);
+  rpc GetBlockByID(GetBlockByIDRequest) returns (BlockResponse) {
+    option (google.api.http) = {get: "/blocks/{id}"};
+  }
   // GetBlockByHeight gets a full block by height.
   rpc GetBlockByHeight(GetBlockByHeightRequest) returns (BlockResponse);
 
@@ -51,21 +88,21 @@ service AccessAPI {
   // SendTransaction submits a transaction to the network.
   rpc SendTransaction(SendTransactionRequest) returns (SendTransactionResponse);
   // GetTransaction gets a transaction by ID.
-  rpc GetTransaction(GetTransactionRequest) returns (TransactionResponse);
+  rpc GetTransaction(GetTransactionRequest) returns (TransactionResponse) {
+    option (google.api.http) = {get: "/transactions/{id}"};
+  }
   // GetTransactionResult gets the result of a transaction.
-  rpc GetTransactionResult(GetTransactionRequest)
-      returns (TransactionResultResponse);
+  rpc GetTransactionResult(GetTransactionRequest) returns (TransactionResultResponse) {
+    option (google.api.http) = {get: "/transaction_results/{id}"};
+  }
   // GetTransactionResultByIndex gets the result of a transaction at a specified
   // block and index
-  rpc GetTransactionResultByIndex(GetTransactionByIndexRequest)
-      returns (TransactionResultResponse);
+  rpc GetTransactionResultByIndex(GetTransactionByIndexRequest) returns (TransactionResultResponse);
   // GetTransactionResultsByBlockID gets all the transaction results for a
   // specified block
-  rpc GetTransactionResultsByBlockID(GetTransactionsByBlockIDRequest)
-      returns (TransactionResultsResponse);
+  rpc GetTransactionResultsByBlockID(GetTransactionsByBlockIDRequest) returns (TransactionResultsResponse);
   // GetTransactionsByBlockID gets all the transactions for a specified block
-  rpc GetTransactionsByBlockID(GetTransactionsByBlockIDRequest)
-      returns (TransactionsResponse);
+  rpc GetTransactionsByBlockID(GetTransactionsByBlockIDRequest) returns (TransactionsResponse);
 
   // Accounts
 
@@ -76,59 +113,55 @@ service AccessAPI {
   rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
   // GetAccountAtLatestBlock gets an account by address from the latest sealed
   // execution state.
-  rpc GetAccountAtLatestBlock(GetAccountAtLatestBlockRequest)
-      returns (AccountResponse);
+  rpc GetAccountAtLatestBlock(GetAccountAtLatestBlockRequest) returns (AccountResponse);
   // GetAccountAtBlockHeight gets an account by address at the given block
   // height
-  rpc GetAccountAtBlockHeight(GetAccountAtBlockHeightRequest)
-      returns (AccountResponse);
+  rpc GetAccountAtBlockHeight(GetAccountAtBlockHeightRequest) returns (AccountResponse);
 
   // Scripts
 
   // ExecuteScriptAtLatestBlock executes a read-only Cadence script against the
   // latest sealed execution state.
-  rpc ExecuteScriptAtLatestBlock(ExecuteScriptAtLatestBlockRequest)
-      returns (ExecuteScriptResponse);
+  rpc ExecuteScriptAtLatestBlock(ExecuteScriptAtLatestBlockRequest) returns (ExecuteScriptResponse) {
+    option (google.api.http) = {
+      post: "/scripts"
+      body: "*"
+    };
+  }
+
   // ExecuteScriptAtBlockID executes a ready-only Cadence script against the
   // execution state at the block with the given ID.
-  rpc ExecuteScriptAtBlockID(ExecuteScriptAtBlockIDRequest)
-      returns (ExecuteScriptResponse);
+  rpc ExecuteScriptAtBlockID(ExecuteScriptAtBlockIDRequest) returns (ExecuteScriptResponse);
   // ExecuteScriptAtBlockHeight executes a ready-only Cadence script against the
   // execution state at the given block height.
-  rpc ExecuteScriptAtBlockHeight(ExecuteScriptAtBlockHeightRequest)
-      returns (ExecuteScriptResponse);
+  rpc ExecuteScriptAtBlockHeight(ExecuteScriptAtBlockHeightRequest) returns (ExecuteScriptResponse);
 
   // Events
 
   // GetEventsForHeightRange retrieves events emitted within the specified block
   // range.
-  rpc GetEventsForHeightRange(GetEventsForHeightRangeRequest)
-      returns (EventsResponse);
+  rpc GetEventsForHeightRange(GetEventsForHeightRangeRequest) returns (EventsResponse);
 
   // GetEventsForBlockIDs retrieves events for the specified block IDs and event
   // type.
-  rpc GetEventsForBlockIDs(GetEventsForBlockIDsRequest)
-      returns (EventsResponse);
+  rpc GetEventsForBlockIDs(GetEventsForBlockIDsRequest) returns (EventsResponse);
 
   // NetworkParameters
 
   // GetNetworkParameters retrieves the Flow network details
-  rpc GetNetworkParameters(GetNetworkParametersRequest)
-      returns (GetNetworkParametersResponse);
+  rpc GetNetworkParameters(GetNetworkParametersRequest) returns (GetNetworkParametersResponse);
 
   // ProtocolState
 
   // GetLatestProtocolStateSnapshot retrieves the latest sealed protocol state
   // snapshot. Used by Flow nodes joining the network to bootstrap a
   // space-efficient local state.
-  rpc GetLatestProtocolStateSnapshot(GetLatestProtocolStateSnapshotRequest)
-      returns (ProtocolStateSnapshotResponse);
+  rpc GetLatestProtocolStateSnapshot(GetLatestProtocolStateSnapshotRequest) returns (ProtocolStateSnapshotResponse);
 
   // GetExecutionResultForBlockID returns Execution Result for a given block.
   // At present, Access Node might not have execution results for every block
   // and as usual, until sealed, this data can change
-  rpc GetExecutionResultForBlockID(GetExecutionResultForBlockIDRequest)
-      returns (ExecutionResultForBlockIDResponse);
+  rpc GetExecutionResultForBlockID(GetExecutionResultForBlockIDRequest) returns (ExecutionResultForBlockIDResponse);
 }
 
 message PingRequest {}
@@ -162,7 +195,7 @@ message GetLatestBlockRequest {
 }
 
 message GetBlockByIDRequest {
-  bytes id = 1;
+  bytes id = 1 [(google.api.field_behavior) = REQUIRED];
   bool full_block_response = 2;
 }
 
@@ -197,7 +230,7 @@ message SendTransactionResponse {
 }
 
 message GetTransactionRequest {
-  bytes id = 1;
+  bytes id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message GetTransactionByIndexRequest {
@@ -258,7 +291,9 @@ message GetAccountAtBlockHeightRequest {
 // Scripts
 
 message ExecuteScriptAtLatestBlockRequest {
+  // Base64 encoded content of the Cadence script.
   bytes script = 1;
+  // An list of arguments each encoded as Base64 passed in the [JSON-Cadence interchange format](https://docs.onflow.org/cadence/json-cadence-spec/).
   repeated bytes arguments = 2;
 }
 

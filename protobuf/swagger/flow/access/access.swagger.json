@@ -1,0 +1,941 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Access API",
+    "version": "1.0.0",
+    "license": {
+      "name": "GNU Affero General Public License v3.0",
+      "url": "https://github.com/onflow/flow-go/blob/master/LICENSE.txt"
+    }
+  },
+  "tags": [
+    {
+      "name": "AccessAPI"
+    }
+  ],
+  "host": "rest-mainnet.onflow.org",
+  "basePath": "/v1",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/blocks/{id}": {
+      "get": {
+        "summary": "GetBlockByID gets a full block by ID.",
+        "operationId": "AccessAPI_GetBlockByID",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/flowaccessBlockResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "fullBlockResponse",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "AccessAPI"
+        ]
+      }
+    },
+    "/scripts": {
+      "post": {
+        "summary": "ExecuteScriptAtLatestBlock executes a read-only Cadence script against the\nlatest sealed execution state.",
+        "operationId": "AccessAPI_ExecuteScriptAtLatestBlock",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/flowaccessExecuteScriptResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/flowaccessExecuteScriptAtLatestBlockRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AccessAPI"
+        ]
+      }
+    },
+    "/transaction_results/{id}": {
+      "get": {
+        "summary": "GetTransactionResult gets the result of a transaction.",
+        "operationId": "AccessAPI_GetTransactionResult",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/flowaccessTransactionResultResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "byte"
+          }
+        ],
+        "tags": [
+          "AccessAPI"
+        ]
+      }
+    },
+    "/transactions/{id}": {
+      "get": {
+        "summary": "GetTransaction gets a transaction by ID.",
+        "operationId": "AccessAPI_GetTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/flowaccessTransactionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "byte"
+          }
+        ],
+        "tags": [
+          "AccessAPI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "accessExecutionResultForBlockIDResponse": {
+      "type": "object",
+      "properties": {
+        "executionResult": {
+          "$ref": "#/definitions/entitiesExecutionResult"
+        }
+      }
+    },
+    "accessProtocolStateSnapshotResponse": {
+      "type": "object",
+      "properties": {
+        "serializedSnapshot": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "accessTransactionResultsResponse": {
+      "type": "object",
+      "properties": {
+        "transactionResults": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flowaccessTransactionResultResponse"
+          }
+        }
+      }
+    },
+    "accessTransactionsResponse": {
+      "type": "object",
+      "properties": {
+        "transactions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flowentitiesTransaction"
+          }
+        }
+      }
+    },
+    "entitiesAggregatedSignature": {
+      "type": "object",
+      "properties": {
+        "verifierSignatures": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "signerIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        }
+      }
+    },
+    "entitiesBlockStatus": {
+      "type": "string",
+      "enum": [
+        "BLOCK_UNKNOWN",
+        "BLOCK_FINALIZED",
+        "BLOCK_SEALED"
+      ],
+      "default": "BLOCK_UNKNOWN"
+    },
+    "entitiesChunk": {
+      "type": "object",
+      "properties": {
+        "CollectionIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "startState": {
+          "type": "string",
+          "format": "byte",
+          "title": "state when starting executing this chunk"
+        },
+        "eventCollection": {
+          "type": "string",
+          "format": "byte",
+          "title": "Events generated by executing results"
+        },
+        "blockId": {
+          "type": "string",
+          "format": "byte",
+          "title": "Block id of the execution result this chunk belongs to"
+        },
+        "totalComputationUsed": {
+          "type": "string",
+          "format": "uint64",
+          "title": "total amount of computation used by running all txs in this chunk"
+        },
+        "numberOfTransactions": {
+          "type": "integer",
+          "format": "int64",
+          "title": "number of transactions inside the collection"
+        },
+        "index": {
+          "type": "string",
+          "format": "uint64",
+          "title": "chunk index inside the ER (starts from zero)"
+        },
+        "endState": {
+          "type": "string",
+          "format": "byte",
+          "title": "EndState inferred from next chunk or from the ER"
+        },
+        "executionDataId": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "entitiesExecutionReceiptMeta": {
+      "type": "object",
+      "properties": {
+        "executorId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "resultId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "spocks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "executorSignature": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "entitiesExecutionResult": {
+      "type": "object",
+      "properties": {
+        "previousResultId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "blockId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "chunks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entitiesChunk"
+          }
+        },
+        "serviceEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entitiesServiceEvent"
+          }
+        },
+        "executionDataId": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "entitiesServiceEvent": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "payload": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "flowaccessAccountResponse": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "$ref": "#/definitions/flowentitiesAccount"
+        }
+      }
+    },
+    "flowaccessBlockHeaderResponse": {
+      "type": "object",
+      "properties": {
+        "block": {
+          "$ref": "#/definitions/flowentitiesBlockHeader"
+        },
+        "blockStatus": {
+          "$ref": "#/definitions/entitiesBlockStatus"
+        }
+      }
+    },
+    "flowaccessBlockResponse": {
+      "type": "object",
+      "properties": {
+        "block": {
+          "$ref": "#/definitions/flowentitiesBlock"
+        },
+        "blockStatus": {
+          "$ref": "#/definitions/entitiesBlockStatus"
+        }
+      }
+    },
+    "flowaccessCollectionResponse": {
+      "type": "object",
+      "properties": {
+        "collection": {
+          "$ref": "#/definitions/flowentitiesCollection"
+        }
+      }
+    },
+    "flowaccessEventsResponse": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flowaccessEventsResponseResult"
+          }
+        }
+      }
+    },
+    "flowaccessEventsResponseResult": {
+      "type": "object",
+      "properties": {
+        "blockId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "blockHeight": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flowentitiesEvent"
+          }
+        },
+        "blockTimestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "flowaccessExecuteScriptAtLatestBlockRequest": {
+      "type": "object",
+      "properties": {
+        "script": {
+          "type": "string",
+          "format": "byte",
+          "description": "Base64 encoded content of the Cadence script."
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          },
+          "description": "An list of arguments each encoded as Base64 passed in the [JSON-Cadence interchange format](https://docs.onflow.org/cadence/json-cadence-spec/)."
+        }
+      }
+    },
+    "flowaccessExecuteScriptResponse": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "flowaccessGetAccountResponse": {
+      "type": "object",
+      "properties": {
+        "account": {
+          "$ref": "#/definitions/flowentitiesAccount"
+        }
+      }
+    },
+    "flowaccessGetNetworkParametersResponse": {
+      "type": "object",
+      "properties": {
+        "chainId": {
+          "type": "string"
+        }
+      }
+    },
+    "flowaccessPingResponse": {
+      "type": "object"
+    },
+    "flowaccessSendTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "flowaccessTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "transaction": {
+          "$ref": "#/definitions/flowentitiesTransaction"
+        }
+      }
+    },
+    "flowaccessTransactionResultResponse": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/flowentitiesTransactionStatus"
+        },
+        "statusCode": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flowentitiesEvent"
+          }
+        },
+        "blockId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "transactionId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "collectionId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "blockHeight": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "flowentitiesAccount": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "format": "byte"
+        },
+        "balance": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "code": {
+          "type": "string",
+          "format": "byte"
+        },
+        "keys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flowentitiesAccountKey"
+          }
+        },
+        "contracts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "byte"
+          }
+        }
+      }
+    },
+    "flowentitiesAccountKey": {
+      "type": "object",
+      "properties": {
+        "index": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "publicKey": {
+          "type": "string",
+          "format": "byte"
+        },
+        "signAlgo": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "hashAlgo": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "weight": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sequenceNumber": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "revoked": {
+          "type": "boolean"
+        }
+      }
+    },
+    "flowentitiesBlock": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "byte"
+        },
+        "parentId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "height": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "collectionGuarantees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flowentitiesCollectionGuarantee"
+          }
+        },
+        "blockSeals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flowentitiesBlockSeal"
+          }
+        },
+        "signatures": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "executionReceiptMetaList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entitiesExecutionReceiptMeta"
+          }
+        },
+        "executionResultList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entitiesExecutionResult"
+          }
+        },
+        "blockHeader": {
+          "$ref": "#/definitions/flowentitiesBlockHeader"
+        }
+      }
+    },
+    "flowentitiesBlockHeader": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "byte"
+        },
+        "parentId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "height": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "payloadHash": {
+          "type": "string",
+          "format": "byte"
+        },
+        "view": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "parentVoterIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          },
+          "title": "deprecated!! value will be empty. replaced by parent_vote_indices"
+        },
+        "parentVoterSigData": {
+          "type": "string",
+          "format": "byte"
+        },
+        "proposerId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "proposerSigData": {
+          "type": "string",
+          "format": "byte"
+        },
+        "chainId": {
+          "type": "string"
+        },
+        "parentVoterIndices": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "flowentitiesBlockSeal": {
+      "type": "object",
+      "properties": {
+        "blockId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "executionReceiptId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "executionReceiptSignatures": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "resultApprovalSignatures": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "finalState": {
+          "type": "string",
+          "format": "byte"
+        },
+        "resultId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "aggregatedApprovalSigs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/entitiesAggregatedSignature"
+          }
+        }
+      }
+    },
+    "flowentitiesCollection": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "byte"
+        },
+        "transactionIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        }
+      }
+    },
+    "flowentitiesCollectionGuarantee": {
+      "type": "object",
+      "properties": {
+        "collectionId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "signatures": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "referenceBlockId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "signature": {
+          "type": "string",
+          "format": "byte"
+        },
+        "signerIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          },
+          "title": "deprecated!! value will be empty. replaced by signer_indices"
+        },
+        "signerIndices": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "flowentitiesEvent": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "transactionId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "transactionIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "eventIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "payload": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "flowentitiesTransaction": {
+      "type": "object",
+      "properties": {
+        "script": {
+          "type": "string",
+          "format": "byte"
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "referenceBlockId": {
+          "type": "string",
+          "format": "byte"
+        },
+        "gasLimit": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "proposalKey": {
+          "$ref": "#/definitions/flowentitiesTransactionProposalKey"
+        },
+        "payer": {
+          "type": "string",
+          "format": "byte"
+        },
+        "authorizers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "payloadSignatures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flowentitiesTransactionSignature"
+          }
+        },
+        "envelopeSignatures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/flowentitiesTransactionSignature"
+          }
+        }
+      }
+    },
+    "flowentitiesTransactionProposalKey": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "format": "byte"
+        },
+        "keyId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sequenceNumber": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "flowentitiesTransactionSignature": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "format": "byte"
+        },
+        "keyId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "signature": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "flowentitiesTransactionStatus": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "PENDING",
+        "FINALIZED",
+        "EXECUTED",
+        "SEALED",
+        "EXPIRED"
+      ],
+      "default": "UNKNOWN"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string",
+          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+        }
+      },
+      "additionalProperties": {},
+      "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n\nExample 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\nExample 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\n\nJSON\n\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The status code, which should be an enum value of\n[google.rpc.Code][google.rpc.Code]."
+        },
+        "message": {
+          "type": "string",
+          "description": "A developer-facing error message, which should be in English. Any\nuser-facing error message should be localized and sent in the\n[google.rpc.Status.details][google.rpc.Status.details] field, or localized\nby the client."
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          },
+          "description": "A list of messages that carry the error details.  There is a common set of\nmessage types for APIs to use."
+        }
+      },
+      "description": "The `Status` type defines a logical error model that is suitable for\ndifferent programming environments, including REST APIs and RPC APIs. It is\nused by [gRPC](https://github.com/grpc). Each `Status` message contains\nthree pieces of data: error code, error message, and error details.\n\nYou can find out more about this error model and how to work with it in the\n[API Design Guide](https://cloud.google.com/apis/design/errors)."
+    }
+  },
+  "externalDocs": {
+    "description": "Find out more about the Access API",
+    "url": "https://developers.flow.com/http-api"
+  }
+}
