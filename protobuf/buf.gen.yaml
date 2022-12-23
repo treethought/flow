@@ -22,3 +22,7 @@ plugins:
     out: swagger
     opt:
       - allow_merge=false
+  # renovate: datasource=github-releases depName=bufbuild/connect-web
+  - remote: buf.build/bufbuild/plugins/connect-web:v0.3.2-1
+    out: ts
+    opt: target=ts

@@ -1,6 +1,8 @@
 .PHONY: generate
 generate:
-	rm -rf ./go/flow/access ./go/flow/execution ./go/flow/entities ./go/flow/legacy && buf generate
+	rm -rf ./go/flow/access ./go/flow/execution ./go/flow/entities ./go/flow/legacy
+	rm -rf ts/
+	buf generate
 	buf build -o envoy/image.pb
 
 .PHONY: format

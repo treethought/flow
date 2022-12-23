@@ -46,6 +46,9 @@ static_resources:
                 always_print_enums_as_ints: false
                 preserve_proto_field_names: false
               auto_mapping: true
+          - name: envoy.filters.http.grpc_web
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_web.v3.GrpcWeb
           - name: envoy.filters.http.cors
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.Cors
