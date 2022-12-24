@@ -35,14 +35,6 @@ func request_AccessAPI_Ping_0(ctx context.Context, marshaler runtime.Marshaler, 
 	var protoReq PingRequest
 	var metadata runtime.ServerMetadata
 
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
 	msg, err := client.Ping(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
@@ -51,14 +43,6 @@ func request_AccessAPI_Ping_0(ctx context.Context, marshaler runtime.Marshaler, 
 func local_request_AccessAPI_Ping_0(ctx context.Context, marshaler runtime.Marshaler, server AccessAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq PingRequest
 	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	msg, err := server.Ping(ctx, &protoReq)
 	return msg, metadata, err
@@ -959,7 +943,7 @@ func local_request_AccessAPI_GetExecutionResultForBlockID_0(ctx context.Context,
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAccessAPIHandlerFromEndpoint instead.
 func RegisterAccessAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AccessAPIServer) error {
 
-	mux.Handle("POST", pattern_AccessAPI_Ping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_AccessAPI_Ping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -967,7 +951,7 @@ func RegisterAccessAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/flow.access.AccessAPI/Ping", runtime.WithHTTPPathPattern("/flow.access.AccessAPI/Ping"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/flow.access.AccessAPI/Ping", runtime.WithHTTPPathPattern("/ping"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1625,13 +1609,13 @@ func RegisterAccessAPIHandler(ctx context.Context, mux *runtime.ServeMux, conn *
 // "AccessAPIClient" to call the correct interceptors.
 func RegisterAccessAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AccessAPIClient) error {
 
-	mux.Handle("POST", pattern_AccessAPI_Ping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_AccessAPI_Ping_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/flow.access.AccessAPI/Ping", runtime.WithHTTPPathPattern("/flow.access.AccessAPI/Ping"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/flow.access.AccessAPI/Ping", runtime.WithHTTPPathPattern("/ping"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2179,7 +2163,7 @@ func RegisterAccessAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 }
 
 var (
-	pattern_AccessAPI_Ping_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"flow.access.AccessAPI", "Ping"}, ""))
+	pattern_AccessAPI_Ping_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"ping"}, ""))
 
 	pattern_AccessAPI_GetLatestBlockHeader_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"flow.access.AccessAPI", "GetLatestBlockHeader"}, ""))
 

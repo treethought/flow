@@ -63,6 +63,29 @@
         ]
       }
     },
+    "/ping": {
+      "get": {
+        "summary": "Ping is used to check if the access node is alive and healthy.",
+        "operationId": "AccessAPI_Ping",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/flowaccessPingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AccessAPI"
+        ]
+      }
+    },
     "/scripts": {
       "post": {
         "summary": "ExecuteScriptAtLatestBlock executes a read-only Cadence script against the\nlatest sealed execution state.",

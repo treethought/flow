@@ -25,7 +25,7 @@ static_resources:
             - name: local_service
               domains: ["*"]
               routes:
-              - match: { prefix: "/access.AccessAPI" }
+              - match: { prefix: "/" }
                 route: { cluster: grpc, timeout: { seconds: 60 } }
               cors:
                 allow_origin_string_match:
@@ -39,13 +39,14 @@ static_resources:
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
               proto_descriptor: "image.pb"
-              services: ["access.AccessAPI"]
+              services: ["access.AccessAPI", "flow.access.AccessAPI"]
               print_options:
                 add_whitespace: true
                 always_print_primitive_fields: true
                 always_print_enums_as_ints: false
                 preserve_proto_field_names: false
               auto_mapping: true
+              convert_grpc_status: true
           - name: envoy.filters.http.grpc_web
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_web.v3.GrpcWeb
